@@ -38,6 +38,9 @@ from rasa_nlu.tokenizers.spacy_tokenizer import SpacyTokenizer
 from rasa_nlu.tokenizers.whitespace_tokenizer import WhitespaceTokenizer
 from rasa_nlu.utils.mitie_utils import MitieNLP
 from rasa_nlu.utils.spacy_utils import SpacyNLP
+from rasa_nlu.utils.hu_spacy_utils import SpacyHuNLP
+
+from rasa_nlu.tokenizers.hu_tokenizer import HuTokenizer
 
 if typing.TYPE_CHECKING:
     from rasa_nlu.components import Component
@@ -53,6 +56,7 @@ component_classes = [
     SpacyFeaturizer, MitieFeaturizer, NGramFeaturizer, RegexFeaturizer,
     MitieTokenizer, SpacyTokenizer, WhitespaceTokenizer,
     SklearnIntentClassifier, MitieIntentClassifier, KeywordIntentClassifier,
+    HuTokenizer, SpacyHuNLP
 ]
 
 # Mapping from a components name to its class to allow name based lookup.
@@ -64,6 +68,15 @@ registered_components = {c.name: c for c in component_classes}
 registered_pipeline_templates = {
     "spacy_sklearn": [
         "nlp_spacy",
+        "tokenizer_spacy",
+        "intent_featurizer_spacy",
+        "intent_entity_featurizer_regex",
+        "ner_crf",
+        "ner_synonyms",
+        "intent_classifier_sklearn",
+    ],
+    "spacy_hu_sklearn": [
+        "nlp_spacy_hu",
         "tokenizer_spacy",
         "intent_featurizer_spacy",
         "intent_entity_featurizer_regex",
@@ -146,7 +159,9 @@ def load_component_by_name(component_name,  # type: Text
     # type: (...) -> Optional[Component]
     """Resolves a component and calls it's load method to init it based on a
     previously persisted model."""
-
+    print("----load_component_by_name----")
+    print(component_name)
+    print(cached_component)
     component_clz = get_component_class(component_name)
     return component_clz.load(model_dir, metadata, cached_component, **kwargs)
 

@@ -181,6 +181,9 @@ class Component(object):
         Components can rely on any context attributes that are
         created by `pipeline_init` calls to components previous
         to this one."""
+        print("----load----")
+        print(cached_component)
+        print(cls)
         return cached_component if cached_component else cls()
 
     @classmethod

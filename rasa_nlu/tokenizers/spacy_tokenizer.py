@@ -34,7 +34,6 @@ class SpacyTokenizer(Tokenizer, Component):
 
     def process(self, message, **kwargs):
         # type: (Message, **Any) -> None
-
         message.set("tokens", self.tokenize(message.get("spacy_doc")))
 
     def tokenize(self, doc):
