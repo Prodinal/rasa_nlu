@@ -13,7 +13,7 @@ from typing import Optional
 from typing import Text
 
 from rasa_nlu.components import Component
-from rasa_nlu.config import RasaNLUConfig
+from rasa_nlu.config import RasaNLUModelConfig
 from rasa_nlu.training_data import Message
 from rasa_nlu.training_data import TrainingData
 
@@ -43,9 +43,9 @@ class SpacyHuNLP(Component):
 
     def __init__(self, nlp, gate_server_url):
         # type: (Language, Text, Text) -> None
-
         self.nlp = nlp
         self.gate_server_url = gate_server_url
+        super(SpacyHuNLP, self).__init__(None)
 
     @classmethod
     def required_packages(cls):
@@ -53,16 +53,15 @@ class SpacyHuNLP(Component):
         return ["spacy"]
 
     @classmethod
-    def create(cls, config):
+    def create(cls, cfg):
         # type: (RasaNLUConfig) -> SpacyNLP
-
-        return cls(cls.create_nlp(config["gate_server_url"]), config["gate_server_url"])
+        return cls(cls.create_nlp(cfg.gate_server_url), cfg.gate_server_url)
 
     def persist(self, model_dir):
         # type: (Text) -> Dict[Text, Any]
-
         return {
             "gate_server_url": self.gate_server_url,
+            "name": SpacyHuNLP.name
         }
 
     @classmethod
@@ -76,15 +75,16 @@ class SpacyHuNLP(Component):
 
         if cached_component:
             return cached_component
-
-        return cls(cls.create_nlp(model_metadata.get("gate_server_url")), model_metadata.get("gate_server_url"))
+        component_meta = model_metadata.for_component(cls.name)
+        url = component_meta.get("gate_server_url")
+        return cls(cls.create_nlp(url), url)
 
 
     @classmethod
     def cache_key(cls, model_metadata):
         # type: (Metadata) -> Text
-
-        spacy_model_name = model_metadata.metadata.get("spacy_model_name")
+        component_meta = model_metadata.for_component(cls.name)
+        spacy_model_name = component_meta.get("spacy_model_name")
         if spacy_model_name is None:
             # Fallback, use the language name, e.g. "en",
             # as the model name if no explicit name is defined
